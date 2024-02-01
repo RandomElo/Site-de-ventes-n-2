@@ -1,0 +1,25 @@
+{
+    "produits": [
+        {
+            "id": 0,
+            "nom": "Nike Velocity",
+            "marque": "Nike",
+            "categorie": "chaussures",
+            "prix": 75
+        },
+        {
+            "id": 1,
+            "nom": "Garmin Fenix 6",
+            "marque": "Garmin",
+            "categorie": "montres",
+            "prix": 350
+        },
+        {
+            "id": 2,
+            "nom": "Seconde couche",
+            "marque": "Decathlon",
+            "categorie": "vetements",
+            "prix": 35
+        }
+    ]
+}
