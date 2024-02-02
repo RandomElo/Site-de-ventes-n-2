@@ -47,8 +47,8 @@ function ajoutLocalStorage() {
     document.querySelectorAll(".form_qte_produit").forEach((produit) => {
         produit.addEventListener("submit", (e) => {
             e.preventDefault();
-            let idproduitCliquer = e.originalTarget.dataset.idproduit;
-            let quantiteProduitCliquer = Number(e.originalTarget[0].value);
+            let idproduitCliquer = e.target.dataset.idproduit;
+            let quantiteProduitCliquer = Number(e.target[0].value);
             e.originalTarget[0].value = "";
             let validationLocalStorage;
             for (let i = 0; i < localStorage.length; i++) {
@@ -81,15 +81,12 @@ function modifierQuantitePanier() {
             if (quantiteModifier <= 0) {
                 supprimerProduitPanier(rangLocalStorage);
             } else {
-                let produit = localStorage.getItem(rangLocalStorage);
-                localStorage.setItem(rangLocalStorage, `${produit.split("_")[0]}_${quantiteModifier}`);
-                let prixUnitaire = document.querySelector(`#prixUniteID${rangLocalStorage}`);
-                let prixTotalLigneElement = document.querySelector(`#totalID${rangLocalStorage}`);
-                let valeurTotalLigne = Number(prixTotalLigneElement.textContent);
-                let prixTotalLigneModifier = Number(quantiteModifier) * Number(prixUnitaire.textContent);
-                prixTotalLigneElement.innerText = prixTotalLigneModifier;
-                let prixPanier = document.querySelector("#totalPanier");
-                prixPanier.innerText = prixPanier.textContent - valeurTotalLigne + prixTotalLigneModifier;
+                let produit = localStorage.getItem(rangLocalStorage); //Récupération du produit dans le local Storage
+                localStorage.setItem(rangLocalStorage, `${produit.split("_")[0]}_${quantiteModifier}`); //Je remplace l'ancienne valeur par la nouvelle
+                let prixUnitaire = document.querySelector(`#prixUniteID${rangLocalStorage}`); //Je récupére l'élément du prix unitaire
+                let prixTotalLigneElement = document.querySelector(`#totalID${rangLocalStorage}`); //Je récupére l'élément qui contient le total de la ligne
+                prixTotalLigneElement.innerText = Number(quantiteModifier) * Number(prixUnitaire.textContent); // Je remplace l'ancien total par le nouveau
+                let prixPanier = (document.querySelector("#totalPanier").innerText = prixPanier.textContent - Number(prixTotalLigneElement.textContent) + prixTotalLigneModifier); //Je calcule le prix du panier
             }
         });
     });
@@ -102,8 +99,8 @@ async function affichagePanier() {
         var donneeJSON = await recuperationProduits();
         donneeJSON = donneeJSON.produits;
         var tableau_produit = ""; //Permet de stocker la partie du tableau générer avec la boucle for
-        var compteurPrix = 0;
-        var compteurProduitsPanier = 0;
+        var compteurPrix = 0; //Variable qui permet de compter le prix total du panier
+        var compteurProduitsPanier = 0; //Peremt de savoir si le panier est vide
         for (let i = 0; i < localStorage.length; i++) {
             let quantiteProduit = localStorage[i].split("_")[1]; //Peremt de récupérer la quantité du produit
             if (quantiteProduit != 0) {
@@ -147,7 +144,6 @@ async function affichagePanier() {
                 </tfoot>
             </table>
             `;
-            //Permet de
             document.querySelectorAll(".boutonSupprProduit").forEach((boutonSupprimer) => boutonSupprimer.addEventListener("click", () => supprimerProduitPanier(boutonSupprimer.parentNode.parentNode.dataset.idlocalstorage)));
             modifierQuantitePanier();
         } else {
@@ -162,9 +158,10 @@ function supprimerPanier() {
         affichageProduits();
     });
 }
+//Fonction qui permet de générer l'objet qui contient uniquement les produits de la catégorie
 async function affichageCategorie(categorie) {
-    let produitsCategorie = {};
     var bdd = await recuperationProduits();
+    let produitsCategorie = {};
     let longeur = 0;
     bdd.produits.forEach((produit) => {
         if (produit.categorie == categorie) {
@@ -172,14 +169,15 @@ async function affichageCategorie(categorie) {
             longeur++;
         }
     });
-    produitsCategorie["length"] = longeur;
-    generationHtmlProduits(produitsCategorie);
+    produitsCategorie["length"] = longeur; //Permet de rendre disponible la longeur dans l'objet
+    generationHtmlProduits(produitsCategorie); //Appel de la fonction qui permet d'afficher les produits
 }
 //Fonction qui permet d'appeller chaque fonction
 function appelFonctions() {
-    affichageProduits();
-    document.querySelector("#panierModifier").addEventListener("click", affichagePanier);
-    supprimerPanier();
+    affichageProduits(); //Permet d'afficher la page avec tous les produtis
     document.querySelectorAll(".categorie").forEach((element) => element.addEventListener("click", () => affichageCategorie(element.dataset.categorieproduit)));
+    document.querySelectorAll(".pageAccueil").forEach((lien) => lien.addEventListener("click", affichageProduits));
+    document.querySelector("#panierModifier").addEventListener("click", affichagePanier);
+    document.querySelector("#panierSupprimer").addEventListener("click", supprimerPanier);
 }
 appelFonctions();
